@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 "use client"
 
 import * as z from "zod"
@@ -16,21 +18,27 @@ import {
 import { Input } from "@/shared/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/shared/components/ui/select"
 import { Textarea } from "@/shared/components/ui/textarea"
-const formSchema = z.object({
+import prisma from "@/db"
+// import {  ProductCreateInput  } from '@prisma/client';
+import type { Product } from '@prisma/client'
+import { createProduct } from "../../actions/iindex"
+
+
+const FormSchema = z.object({
     title: z.string().min(2).max(50),
     description: z.string(),
     status: z.string()
 })
-
 
 interface ProductFormProps {
 
 }
 
 const ProductForm: React.FC<ProductFormProps> = () => {
+
     // 1. Define your form.
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof FormSchema>>({
+        resolver: zodResolver(FormSchema),
         defaultValues: {
             title: "T-shirt",
             description: "",
@@ -38,10 +46,9 @@ const ProductForm: React.FC<ProductFormProps> = () => {
         },
     })
     // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof FormSchema>) {
+
+        const product = await createProduct(values)
     }
     return (
         <Form {...form}>
@@ -110,9 +117,10 @@ const ProductForm: React.FC<ProductFormProps> = () => {
                     />
                 </div>
 
-                {/* <Button type="submit">Submit</Button> */}
+                <Button type="submit">Submit</Button>
             </form>
         </Form>
+
     );
 }
 
